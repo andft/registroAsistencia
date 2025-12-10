@@ -1,0 +1,54 @@
+| Clase       | Significado                                     |
+| :---------- | :---------------------------------------------- |
+| `q-pa-none` | Sin padding                                     |
+| `q-pa-xs`   | Padding extra pequeño                           |
+| `q-pa-sm`   | Padding pequeño                                 |
+| `q-pa-md`   | Padding mediano                                 |
+| `q-pa-lg`   | Padding grande                                  |
+| `q-pa-xl`   | Padding extra grande                            |
+| `q-pa-2xl`  | Padding enorme (24 × 4 px)                      |
+| `q-pa-md`   | Padding en todo el contenedor (mediano)         |
+| `q-px-lg`   | Padding horizontal (izquierda y derecha) grande |
+| `q-py-sm`   | Padding vertical (arriba y abajo) pequeño       |
+| `q-pt-xl`   | Padding solo arriba, extra grande               |
+| `q-pb-none` | Sin padding abajo                               |
+
+
+| Clase             | Descripción                              |
+| :---------------- | :--------------------------------------- |
+| `row`             | Activa flexbox horizontal                |
+| `column`          | Activa flexbox vertical                  |
+| `justify-start`   | Alinea al inicio horizontal              |
+| `justify-center`  | Centra horizontalmente                   |
+| `justify-end`     | Alinea al final horizontal               |
+| `justify-between` | Espacia entre elementos                  |
+| `justify-around`  | Espaciado equitativo                     |
+| `items-start`     | Alinea al inicio vertical                |
+| `items-center`    | Centra verticalmente                     |
+| `items-end`       | Alinea al final vertical                 |
+| `items-stretch`   | Estira elementos verticalmente           |
+| `self-center`     | Centra un elemento individual            |
+| `no-wrap`         | Evita salto de línea                     |
+| `wrap`            | Permite que los elementos bajen de línea |
+
+
+| Quasar         | Equivalente CSS |
+| :------------- | :-------------- |
+| `.q-gutter-xs` | `gap: 4px;`     |
+| `.q-gutter-sm` | `gap: 8px;`     |
+| `.q-gutter-md` | `gap: 16px;`    |
+| `.q-gutter-lg` | `gap: 24px;`    |
+| `.q-gutter-xl` | `gap: 32px;`    |
+
+| Valor          | Tamaño aproximado |
+| :------------- | :---------------- |
+| `xs`           | 12px              |
+| `sm`           | 16px              |
+| `md` (default) | 24px              |
+| `lg`           | 32px              |
+| `xl`           | 40px              |
+| `2xl`          | 48px              |
+
+
+
+Hola a todos, pruebas de github
