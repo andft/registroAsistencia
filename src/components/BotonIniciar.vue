@@ -20,26 +20,28 @@ function ir() {
 
 <style scoped>
 .boton {
-  background: #979090;
-  color: #ffffff;
-  font-size: clamp(1rem, 3vw, 2rem);
-  padding: clamp(0.6rem, 2vw, 0.5rem) clamp(1.5rem, 4vw, 1rem);
-  border-radius: clamp(15px, 4vw, 30px);
+  background: #807257; 
+  color: #ffffff;       
+  font-size: clamp(1rem, 2.5vw, 2.5rem);
+  padding: clamp(0.5rem, 1.5vw, 1.5rem) clamp(1.2rem, 3vw, 4rem);
+  border-radius: 12px; 
+  border: none;
   cursor: pointer;
-  box-shadow: clamp(3px, 1vw, 6px) clamp(3px, 1vw, 6px) 0px #000;
-  transition: 0.15s ease;
-  letter-spacing: clamp(0.5px, 0.4vw, 2px);
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2); 
+  transition: 0.3s ease, transform 0.3s ease;
+  letter-spacing: 10px;
+  text-transform: uppercase; 
 }
 
 .boton:hover {
-  transform: translateY(-4px) rotate(-1deg);
-  background: #ff3300;
-  color: #000;
-  box-shadow: clamp(5px, 1.3vw, 8px) clamp(5px, 1.3vw, 8px) 0px #000;
+  transform: translateY(-2px);
+  background: #c7a154; 
+  box-shadow: 10px 10px 8px rgba(0, 0, 0, 1);
 }
 
 .boton:active {
-  transform: translateY(3px) rotate(1deg);
-  box-shadow: clamp(2px, 0.7vw, 3px) clamp(2px, 0.7vw, 3px) 0px #000;
+  transform: translateY(1px);
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
+
 </style>

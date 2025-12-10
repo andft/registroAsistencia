@@ -1,9 +1,9 @@
 <template>
-  <router-view />
+    <div>Consulta</div>
 </template>
 
 <script setup>
 </script>
 
-<style>
+<style scoped>
 </style>
