@@ -23,6 +23,7 @@
             <span v-else>Registro</span>
           </BotonIniciar>
         </div>
+
         <div>
           <BotonIniciar @click="abrirmodal" :disabled="isLoading">
             <span v-if="isLoading && action === 'asistencia'">
@@ -80,23 +81,23 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, nextTick, onMounted } from "vue";
 import { useFace } from "@/composables/useFace";
 import BotonIniciar from "../components/BotonIniciar.vue";
 
 function fechaactual() {
   const hoy = new Date();
-  const year = hoy.getFullYear();
-  const month = String(hoy.getMonth() + 1).padStart(2, "0"); // Mes inicia en 0
-  const day = String(hoy.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const y = hoy.getFullYear();
+  const m = String(hoy.getMonth() + 1).padStart(2, "0");
+  const d = String(hoy.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 const video = ref(null);
 const nombre = ref("");
 const documento = ref("");
 const isLoading = ref(false);
-const action = ref(""); 
+const action = ref("");
 const modalVisible = ref(false);
 
 const estudiantes = reactive(
@@ -106,11 +107,13 @@ const asistencia = reactive(
   JSON.parse(localStorage.getItem("asistencia") || "[]")
 );
 
+// Cálculo de asistencia del día
 const asistenciahoy = computed(() => {
   const hoy = fechaactual();
   return asistencia.filter((a) => a.fecha === hoy);
 });
 
+// Métodos importados del módulo facial
 const {
   setVideoElement,
   loadModels,
@@ -119,22 +122,17 @@ const {
   createFaceMatcher,
 } = useFace();
 
+// Registro de estudiante con rostro
 const registroestudiante = async () => {
-  if (!nombre.value || !documento.value) {
+  if (!nombre.value || !documento.value)
     return alert("Ingresa nombre y documento primero");
-  }
 
   isLoading.value = true;
   action.value = "registro";
 
   try {
-    const existeDocumento = estudiantes.find(
-      (e) => e.documento === documento.value
-    );
-    if (existeDocumento) {
-      alert("Este documento ya está registrado");
-      return;
-    }
+    const existe = estudiantes.find((e) => e.documento === documento.value);
+    if (existe) return alert("Este documento ya está registrado");
 
     const descriptor = await getFaceDescriptor();
     if (!descriptor) return alert("No se detectó el rostro");
@@ -146,31 +144,39 @@ const registroestudiante = async () => {
     });
 
     localStorage.setItem("estudiantes", JSON.stringify(estudiantes));
-    alert(`Estudiante ${nombre.value} registrado correctamente`);
 
+    alert(`Estudiante ${nombre.value} registrado correctamente`);
     nombre.value = "";
     documento.value = "";
   } catch (error) {
     console.error(error);
-    alert("Ocurrió un error al registrar");
+    alert("Error al registrar");
   } finally {
     isLoading.value = false;
     action.value = "";
   }
 };
 
-const abrirmodal = () => {
+// Abrir modal para marcar asistencia
+const abrirmodal = async () => {
   modalVisible.value = true;
-  marcarasistencia(); 
+
+  await nextTick();
+
+  setTimeout(() => {
+    marcarasistencia();
+  }, 800);
 };
 
+// Cerrar modal de asistencia
 const cerrarmodal = () => {
   modalVisible.value = false;
 };
 
+// Procesar detección y registro de asistencia con reconocimiento facial
 const marcarasistencia = async () => {
   if (estudiantes.length === 0) {
-    alert("No hay estudiantes registrados. Primero registre al estudiante");
+    alert("No hay estudiantes registrados");
     cerrarmodal();
     return;
   }
@@ -187,23 +193,22 @@ const marcarasistencia = async () => {
     }
 
     const matcher = createFaceMatcher(estudiantes);
-    const resultado = matcher.findBestMatch(descriptor);
+    const result = matcher.findBestMatch(descriptor);
 
-    if (resultado.label === "unknown") {
-      alert("Rostro no reconocido. Debe registrarse primero");
+    if (result.label === "unknown") {
+      alert("Rostro no reconocido");
       cerrarmodal();
       return;
     }
 
-    const estudiante = estudiantes.find((e) => e.nombre === resultado.label);
-
+    const estudiante = estudiantes.find((e) => e.nombre === result.label);
     const hoy = fechaactual();
 
-    const yaRegistrado = asistencia.find(
+    const ya = asistencia.find(
       (a) => a.documento === estudiante.documento && a.fecha === hoy
     );
 
-    if (yaRegistrado) {
+    if (ya) {
       alert(`${estudiante.nombre} ya registró asistencia hoy`);
     } else {
       asistencia.push({
@@ -216,7 +221,7 @@ const marcarasistencia = async () => {
     }
   } catch (error) {
     console.error(error);
-    alert("Ocurrió un error al marcar asistencia");
+    alert("Error marcando asistencia");
   } finally {
     isLoading.value = false;
     action.value = "";
@@ -224,22 +229,20 @@ const marcarasistencia = async () => {
   }
 };
 
+// Inicialización: conectar video, cargar modelos y activar cámara
 onMounted(async () => {
-  setVideoElement(video);
+  await nextTick();
+  setVideoElement(video.value);
   await loadModels();
   await startCamera();
 });
 </script>
 
+<style>
 
-<style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap");
-
-* {
-  margin: 0;
-  padding: 0;
-  font-family: "Merriweather", serif;
-}
+  body{
+    display: none;
+  }
 
 .container {
   display: flex;
@@ -307,7 +310,6 @@ input:focus {
 .modal {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;

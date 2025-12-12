@@ -2,39 +2,25 @@
 import * as faceapi from "face-api.js";
 
 export function useFace() {
-  let video = null;
+  let video = null; // <video> DOM real
 
-  // Conectar el <video ref="video">
   const setVideoElement = (videoRef) => {
     video = videoRef;
   };
 
-  // Cargar todos los modelos que tienes en Public/models
   const loadModels = async () => {
-    const MODEL_URL = "/models"; // carpeta en public
+    const MODEL_URL = "/models";
 
-    // Detectores de rostro
     await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
     await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-    await faceapi.nets.mtcnn.loadFromUri(MODEL_URL);
-
-    // Landmark / puntos faciales
     await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
-
-    // Reconocimiento facial
     await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
 
-    // Edad, género y expresiones
-    await faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
-
-    console.log("✅ Modelos cargados correctamente");
+    console.log("Modelos cargados correctamente");
   };
 
-  // Iniciar cámara
   const startCamera = async () => {
-    if (!video?.value) {
+    if (!video) {
       console.error("❌ No se encontró el elemento <video>");
       return;
     }
@@ -44,37 +30,33 @@ export function useFace() {
       audio: false,
     });
 
-    video.value.srcObject = stream;
-    await video.value.play();
+    video.srcObject = stream;
+    await video.play();
   };
 
-  // Detectar rostro y obtener descriptor
   const getFaceDescriptor = async () => {
-    if (!video?.value) return null;
+    if (!video) return null;
 
     const result = await faceapi
       .detectSingleFace(
-        video.value,
+        video,
         new faceapi.TinyFaceDetectorOptions()
       )
       .withFaceLandmarks()
-      .withFaceDescriptor()
-      .withAgeAndGender()
-      .withFaceExpressions();
+      .withFaceDescriptor();
 
     if (!result) return null;
     return result.descriptor;
   };
 
-  // Crear matcher de estudiantes
   const createFaceMatcher = (estudiantes) => {
-    const labeled = estudiantes.map(
-      (e) =>
-        new faceapi.LabeledFaceDescriptors(
-          e.nombre,
-          [new Float32Array(e.descriptor)]
-        )
+    const labeled = estudiantes.map((e) =>
+      new faceapi.LabeledFaceDescriptors(
+        e.nombre,
+        [new Float32Array(e.descriptor)]
+      )
     );
+
     return new faceapi.FaceMatcher(labeled);
   };
 

@@ -1,26 +1,29 @@
 <template>
-  <div class="consulta-container">
+  <div class="consulta-container column q-pa-md q-gutter-md q-flex q-justify-center q-align-center" style="min-height: 100svh;">
     <h2>Consulta de Asistencia</h2>
 
-    <div class="consulta-form">
-      <input v-model="documento" placeholder="Ingresa el documento del estudiante" />
-      <button @click="buscarPorDocumento">Buscar</button>
-      <button @click="abrirModalRostro">Reconocimiento Facial</button>
+    <div class="consulta-form row q-gutter-sm q-justify-center q-align-center">
+      <input
+        v-model="documento"
+        placeholder="Ingresa el documento del estudiante"
+      />
+      <button @click="buscardocumento">Buscar</button>
+      <button @click="abrirmodal">Reconocimiento Facial</button>
     </div>
 
-    <div v-if="estudianteSeleccionado" class="calendario-container">
-      <h3>Asistencia de {{ estudianteSeleccionado.nombre }}</h3>
+    <div v-if="estseleccionado" class="calendario-container column q-gutter-sm q-align-center">
+      <h3>Asistencia de {{ estseleccionado.nombre }}</h3>
       <p>{{ monthName }} {{ yearActual }}</p>
 
-      <div class="calendario">
-        <div class="dias-semana">
+      <div class="calendario column q-gutter-xs">
+        <div class="dias-semana row q-gutter-xs">
           <span v-for="d in diasSemana" :key="d">{{ d }}</span>
         </div>
-        <div class="dias-mes">
-          <span 
-            v-for="(dia, index) in diasMes" 
-            :key="index" 
-            :class="{'asistio': diasAsistencia.includes(dia)}"
+        <div class="dias-mes row q-gutter-xs">
+          <span
+            v-for="(dia, index) in diasMes"
+            :key="index"
+            :class="{ asistio: diasdeasistencia.includes(dia) }"
           >
             {{ dia }}
           </span>
@@ -32,13 +35,21 @@
       <p>{{ mensaje }}</p>
     </div>
 
-    <!-- Modal de cámara -->
     <div v-if="modalVisible" class="modal">
-      <div class="modal-content">
+      <div class="modal-content column q-pa-md q-gutter-sm q-align-center q-justify-center">
         <h3>Acerca tu rostro a la cámara</h3>
-        <video ref="video" autoplay muted width="320" height="240"></video>
-        <div style="margin-top:10px;">
-          <button @click="cerrarModal" class="btn-cancel">Cancelar</button>
+
+        <video
+          ref="video"
+          autoplay
+          muted
+          playsinline
+          width="320"
+          height="240"
+        ></video>
+
+        <div>
+          <button @click="cerrarmodal" class="btn-cancel">Cancelar</button>
         </div>
       </div>
     </div>
@@ -46,13 +57,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, nextTick } from "vue";
+import { ref, reactive, nextTick } from "vue";
 import { getDaysInMonth } from "date-fns";
 import { useFace } from "@/composables/useFace";
 
 const documento = ref("");
-const estudianteSeleccionado = ref(null);
-const diasAsistencia = ref([]);
+const estseleccionado = ref(null);
+const diasdeasistencia = ref([]);
 const mensaje = ref("");
 const modalVisible = ref(false);
 
@@ -65,59 +76,80 @@ const monthName = hoy.toLocaleString("es-ES", { month: "long" });
 const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const diasMes = Array.from({ length: getDaysInMonth(hoy) }, (_, i) => i + 1);
 
-const estudiantes = reactive(JSON.parse(localStorage.getItem("estudiantes") || "[]"));
-const asistencia = reactive(JSON.parse(localStorage.getItem("asistencia") || "[]"));
+const estudiantes = reactive(
+  JSON.parse(localStorage.getItem("estudiantes") || "[]")
+);
+const asistencia = reactive(
+  JSON.parse(localStorage.getItem("asistencia") || "[]")
+);
 
-const { setVideoElement, loadModels, startCamera, getFaceDescriptor, createFaceMatcher } = useFace();
+// Métodos importados del módulo facial
+const {
+  setVideoElement,
+  loadModels,
+  startCamera,
+  getFaceDescriptor,
+  createFaceMatcher,
+} = useFace();
 
-// Buscar por documento
-const buscarPorDocumento = () => {
+// Busqueda estudiante por documento
+const buscardocumento = () => {
   mensaje.value = "";
-  estudianteSeleccionado.value = null;
-  diasAsistencia.value = [];
+  estseleccionado.value = null;
+  diasdeasistencia.value = [];
 
-  const estudiante = estudiantes.find(e => e.documento === documento.value);
+  const estudiante = estudiantes.find((e) => e.documento === documento.value);
+
   if (!estudiante) {
     mensaje.value = "No se encontró ningún estudiante con ese documento.";
     return;
   }
 
-  estudianteSeleccionado.value = estudiante;
+  estseleccionado.value = estudiante;
 
-  const registrosMes = asistencia.filter(a => {
+  const mesregistrado = asistencia.filter((a) => {
     const fecha = new Date(a.fecha + "T00:00");
-    return a.documento === estudiante.documento &&
-           fecha.getMonth() === monthActual &&
-           fecha.getFullYear() === yearActual;
+    return (
+      a.documento === estudiante.documento &&
+      fecha.getMonth() === monthActual &&
+      fecha.getFullYear() === yearActual
+    );
   });
 
-  diasAsistencia.value = registrosMes.map(r => new Date(r.fecha + "T00:00").getDate());
+  diasdeasistencia.value = mesregistrado.map((r) =>
+    new Date(r.fecha + "T00:00").getDate()
+  );
 };
 
-// Abrir modal y mostrar cámara
-const abrirModalRostro = async () => {
-  modalVisible.value = true;
+const abrirmodal = async () => {
   mensaje.value = "";
+  modalVisible.value = true;
 
-  await nextTick(); // Esperamos a que el video exista en el DOM
+  await nextTick();
+  await nextTick();
+
+  if (!video.value) {
+    console.error("VIDEO ES NULL");
+    return;
+  }
+
   setVideoElement(video.value);
-  await loadModels();
-  await startCamera();
 
-  // Esperar un segundo para que la cámara cargue imagen antes de reconocimiento
-  setTimeout(() => {
-    reconocimientoFacial();
-  }, 1000);
+  await startCamera();
+  await loadModels();
+
+  setTimeout(() => reconocimientofacial(), 1200);
 };
 
-const cerrarModal = () => {
+const cerrarmodal = () => {
   modalVisible.value = false;
 };
 
-// Reconocimiento facial
-const reconocimientoFacial = async () => {
+// Reconocimiento facial y carga
+const reconocimientofacial = async () => {
   try {
     const descriptor = await getFaceDescriptor();
+
     if (!descriptor) {
       mensaje.value = "No se detectó rostro.";
       return;
@@ -131,17 +163,21 @@ const reconocimientoFacial = async () => {
       return;
     }
 
-    const estudiante = estudiantes.find(e => e.nombre === resultado.label);
-    estudianteSeleccionado.value = estudiante;
+    const estudiante = estudiantes.find((e) => e.nombre === resultado.label);
+    estseleccionado.value = estudiante;
 
-    const registrosMes = asistencia.filter(a => {
+    const mesregistrado = asistencia.filter((a) => {
       const fecha = new Date(a.fecha + "T00:00");
-      return a.documento === estudiante.documento &&
-             fecha.getMonth() === monthActual &&
-             fecha.getFullYear() === yearActual;
+      return (
+        a.documento === estudiante.documento &&
+        fecha.getMonth() === monthActual &&
+        fecha.getFullYear() === yearActual
+      );
     });
 
-    diasAsistencia.value = registrosMes.map(r => new Date(r.fecha + "T00:00").getDate());
+    diasdeasistencia.value = mesregistrado.map((r) =>
+      new Date(r.fecha + "T00:00").getDate()
+    );
   } catch (error) {
     console.error(error);
     mensaje.value = "Ocurrió un error al reconocer el rostro.";
@@ -149,18 +185,11 @@ const reconocimientoFacial = async () => {
 };
 </script>
 
+
 <style scoped>
 .consulta-container {
   max-width: 600px;
   margin: auto;
-  padding: 20px;
-  font-family: "Georgia", serif;
-}
-
-.consulta-form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
 }
 
 input {
@@ -181,30 +210,6 @@ button {
 
 button:hover {
   background-color: #72694f;
-}
-
-.calendario-container {
-  margin-top: 20px;
-}
-
-.calendario {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.dias-semana {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  font-weight: bold;
-  text-align: center;
-}
-
-.dias-mes {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  gap: 5px;
 }
 
 .dias-mes span {
@@ -228,10 +233,7 @@ button:hover {
 .modal {
   position: fixed;
   inset: 0;
-  background-color: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 100;
 }
 
