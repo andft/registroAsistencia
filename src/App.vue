@@ -20,20 +20,15 @@ body,
 #app {
   width: 100%;
   height: 100%;
-  min-height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
-router-view,
-.router-view {
+#app > div {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
 }
+
 </style>
