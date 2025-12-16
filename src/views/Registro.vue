@@ -1,80 +1,82 @@
 <template>
-  <div class="row justify-center q-gutter-xl">
-    <div>
-      <div class="column justify-center items-center q-gutter-lg">
-        <div><h3>Centro de Asistencia Estudiantil</h3></div>
+  <div class="fondo column justify-center items-center">
+    <div class="row justify-center items-center">
+      <div>
+        <div class="column justify-center items-center q-gutter-lg">
+          <div><h3>Centro de Asistencia Estudiantil</h3></div>
 
-        <div class="container">
-          <video ref="video" width="320" height="240" autoplay muted></video>
+          <div class="container">
+            <video ref="video" width="320" height="240" autoplay muted></video>
+          </div>
+
+          <div>
+            <input v-model="nombre" placeholder="Nombre del estudiante" />
+          </div>
+          <div>
+            <input v-model="documento" placeholder="Documento del estudiante" />
+          </div>
+
+          <div>
+            <BotonIniciar @click="registroestudiante" :disabled="isLoading">
+              <span v-if="isLoading && action === 'registro'">
+                <i class="spinner"></i> Registrando...
+              </span>
+              <span v-else>Registro</span>
+            </BotonIniciar>
+          </div>
+
+          <div>
+            <BotonIniciar @click="abrirmodal" :disabled="isLoading">
+              <span v-if="isLoading && action === 'asistencia'">
+                <i class="spinner"></i> Marcando...
+              </span>
+              <span v-else>Marcar Asistencia</span>
+            </BotonIniciar>
+          </div>
         </div>
 
-        <div>
-          <input v-model="nombre" placeholder="Nombre del estudiante" />
-        </div>
-        <div>
-          <input v-model="documento" placeholder="Documento del estudiante" />
-        </div>
-
-        <div>
-          <BotonIniciar @click="registroestudiante" :disabled="isLoading">
-            <span v-if="isLoading && action === 'registro'">
-              <i class="spinner"></i> Registrando...
-            </span>
-            <span v-else>Registro</span>
-          </BotonIniciar>
-        </div>
-
-        <div>
-          <BotonIniciar @click="abrirmodal" :disabled="isLoading">
-            <span v-if="isLoading && action === 'asistencia'">
-              <i class="spinner"></i> Marcando...
-            </span>
-            <span v-else>Marcar Asistencia</span>
-          </BotonIniciar>
+        <div v-if="isLoading && action === ''" class="loading-text">
+          ⏳ Procesando, por favor espera...
         </div>
       </div>
 
-      <div v-if="isLoading && action === ''" class="loading-text">
-        ⏳ Procesando, por favor espera...
+      <div class="column justify-center items-center q-gutter-md">
+        <div><h3>Asistencia del día</h3></div>
+
+        <div v-if="asistenciahoy.length">
+          <table class="asistencia-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Documento</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(s, index) in asistenciahoy" :key="s.documento">
+                <td>{{ index + 1 }}</td>
+                <td>{{ s.nombre }}</td>
+                <td>{{ s.documento }}</td>
+                <td>{{ s.fecha }}</td>
+                <td>✅ Presente</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div v-else class="no-asistencia">
+          <p>📭 No hay registros de asistencia hoy.</p>
+        </div>
       </div>
-    </div>
 
-    <div class="column justify-center items-center q-gutter-md">
-      <div><h3>Asistencia del día</h3></div>
-
-      <div v-if="asistenciahoy.length">
-        <table class="asistencia-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Nombre</th>
-              <th>Documento</th>
-              <th>Fecha</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(s, index) in asistenciahoy" :key="s.documento">
-              <td>{{ index + 1 }}</td>
-              <td>{{ s.nombre }}</td>
-              <td>{{ s.documento }}</td>
-              <td>{{ s.fecha }}</td>
-              <td>✅ Presente</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div v-else class="no-asistencia">
-        <p>📭 No hay registros de asistencia hoy.</p>
-      </div>
-    </div>
-
-    <div v-if="modalVisible" class="modal">
-      <div class="modal-content">
-        <h3>Marcando asistencia...</h3>
-        <p>Acerca tu rostro a la cámara</p>
-        <button @click="cerrarmodal" class="btn-cancel">Cancelar</button>
+      <div v-if="modalVisible" class="modal">
+        <div class="modal-content">
+          <h3>Marcando asistencia...</h3>
+          <p>Acerca tu rostro a la cámara</p>
+          <button @click="cerrarmodal" class="btn-cancel">Cancelar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -239,142 +241,196 @@ onMounted(async () => {
 </script>
 
 <style>
+body {
+  min-height: 100vh;
+  width: 100%;
+  background-image: url("../assets/Ambiente.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.fondo {
+  padding-top: 100px ;
+}
 
 .container {
   display: flex;
   justify-content: center;
-  max-width: 500px;
-  color: #4a4a4a;
+  max-width: 420px;
+  width: 100%;
 }
 
-.title {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #3e3e3e;
+h3 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
 video {
-  border: 2px solid #333;
-  border-radius: 6px;
-  margin-bottom: 15px;
   width: 100%;
-  height: auto;
+  max-width: 360px;
+  border-radius: 12px;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  margin-bottom: 18px;
+  background-color: #000;
 }
 
 input {
-  padding: 8px 12px;
+  width: 100%;
+  max-width: 320px;
+  padding: 12px 14px;
   font-size: 1rem;
-  border: 2px solid #8b7d66;
-  border-radius: 6px;
-  outline-offset: 2px;
-  transition: border-color 0.3s ease;
+  border-radius: 10px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #333;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s ease;
+}
+
+input::placeholder {
+  color: #888;
 }
 
 input:focus {
-  border-color: #72694f;
-}
-
-.spinner {
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #333;
-  border-radius: 50%;
-  width: 14px;
-  height: 14px;
-  display: inline-block;
-  animation: spin 1s linear infinite;
-  margin-right: 5px;
-  vertical-align: middle;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
 }
 
 .loading-text {
-  color: #1a73e8;
-  margin-bottom: 15px;
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #f1f1f1;
+  font-weight: 500;
+  text-align: center;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.9s linear infinite;
+  margin-right: 6px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .modal {
   position: fixed;
   inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 100;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
-  background-color: white;
-  padding: 25px 35px;
-  border-radius: 8px;
-  text-align: center;
-  max-width: 320px;
+  background: linear-gradient(135deg, #ffffff, #f3f3f3);
+  padding: 30px 35px;
+  border-radius: 14px;
   width: 90%;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  max-width: 340px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  animation: scaleIn 0.25s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .modal-content h3 {
-  margin-bottom: 10px;
-  font-weight: 700;
-  color: #4a4a4a;
+  color: #333;
+  margin-bottom: 8px;
 }
 
 .modal-content p {
-  margin-bottom: 20px;
   color: #666;
+  margin-bottom: 22px;
 }
 
 .btn-cancel {
-  background-color: #8b7d66;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #8b7d66, #6f634f);
+  color: #fff;
   border: none;
-  color: white;
-  letter-spacing: 0.15em;
-  padding: 8px 16px;
-  border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .btn-cancel:hover {
-  background-color: #72694f;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
 }
 
 .asistencia-table {
-  text-align: center;
+  width: 100%;
   border-collapse: collapse;
-}
-
-.asistencia-table th,
-.asistencia-table td {
-  padding: 8px 12px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
 }
 
 .asistencia-table th {
-  background-color: #8b7d66;
-  color: white;
+  background: linear-gradient(135deg, #8b7d66, #6f634f);
+  color: #ffffff;
+  padding: 20px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.asistencia-table td {
+  padding: 20px;
+  color: #f1f1f1;
+  text-align: center;
+  background-color: transparent;
+  transition: background-color 0.25s ease;
 }
 
 .asistencia-table tbody tr:nth-child(even) {
-  background-color: #f5f5f5;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .asistencia-table tbody tr:hover {
-  background-color: #e0d9c3;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .no-asistencia {
-  margin-top: 10px;
+  margin-top: 12px;
+  color: #ffffff;
   font-style: italic;
-  color: #000000;
+  text-align: center;
+  opacity: 0.85;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 </style>
