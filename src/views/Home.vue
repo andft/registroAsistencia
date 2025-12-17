@@ -39,7 +39,7 @@ import BotonIniciar from "../components/BotonIniciar.vue"
 
 .fondo {
   position: relative;
-  background-image: url("../assets/Ambiente.jpg");
+    background-image: url("../assets/Ambiente.jpg");
   background-position: center;
   background-size: cover;
   overflow: hidden;

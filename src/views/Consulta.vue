@@ -1,7 +1,9 @@
 <template>
-  <div class="fondo row justify-center items center">
+  <div class="fondo row justify-center items-center">
+    <div class="blur-overlay"></div>
+
     <div
-      class="consulta-container column justify-center items-center q-gutter-xl"
+      class="consulta-container contenido column justify-center items-center q-gutter-xl"
     >
       <div class="titulo">
         <h1>Consulta de Asistencia</h1>
@@ -45,7 +47,6 @@
         <p>{{ mensaje }}</p>
       </div>
 
-      <!-- Modal de cámara -->
       <div v-if="modalVisible" class="modal">
         <div class="modal-content">
           <h3>Acerca tu rostro a la cámara</h3>
@@ -69,7 +70,6 @@ const estudianteSeleccionado = ref(null);
 const diasAsistencia = ref([]);
 const mensaje = ref("");
 const modalVisible = ref(false);
-
 const video = ref(null);
 
 const hoy = new Date();
@@ -94,7 +94,6 @@ const {
   createFaceMatcher,
 } = useFace();
 
-// Buscar por documento
 const buscarPorDocumento = () => {
   mensaje.value = "";
   estudianteSeleccionado.value = null;
@@ -122,17 +121,15 @@ const buscarPorDocumento = () => {
   );
 };
 
-// Abrir modal y mostrar cámara
 const abrirModalRostro = async () => {
   modalVisible.value = true;
   mensaje.value = "";
 
-  await nextTick(); // Esperamos a que el video exista en el DOM
+  await nextTick();
   setVideoElement(video.value);
   await loadModels();
   await startCamera();
 
-  // Esperar un segundo para que la cámara cargue imagen antes de reconocimiento
   setTimeout(() => {
     reconocimientoFacial();
   }, 1000);
@@ -142,7 +139,6 @@ const cerrarModal = () => {
   modalVisible.value = false;
 };
 
-// Reconocimiento facial
 const reconocimientoFacial = async () => {
   try {
     const descriptor = await getFaceDescriptor();
@@ -174,8 +170,7 @@ const reconocimientoFacial = async () => {
     diasAsistencia.value = registrosMes.map((r) =>
       new Date(r.fecha + "T00:00").getDate()
     );
-  } catch (error) {
-    console.error(error);
+  } catch {
     mensaje.value = "Ocurrió un error al reconocer el rostro.";
   }
 };
@@ -186,11 +181,32 @@ const reconocimientoFacial = async () => {
   text-align: center;
 }
 
+.fondo {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.blur-overlay {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.contenido {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
 h1 {
   color: white;
   font-size: clamp(1.6rem, 4vw, 12rem);
 }
-
 
 .consulta-container {
   width: 100%;
@@ -199,12 +215,6 @@ h1 {
 
 .titulo {
   width: 100%;
-}
-
-.consulta-form {
-  display: flex;
-  gap: clamp(8px, 2vw, 12px);
-  margin-bottom: clamp(16px, 3vw, 24px);
 }
 
 input {
@@ -222,17 +232,10 @@ button {
   padding: clamp(6px, 1.5vw, 10px) clamp(12px, 2.5vw, 18px);
   font-size: clamp(0.85rem, 2vw, 1.5rem);
   background: linear-gradient(135deg, #8b7d66, #6f634f);
-  color: #fff;
   color: white;
   border: none;
   border-radius: clamp(4px, 1vw, 6px);
   cursor: pointer;
-}
-
-button:hover {
-  background: linear-gradient(135deg, #cbb796, #b7a484);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
-  color: black;
 }
 
 .calendario-container {
@@ -241,7 +244,8 @@ button:hover {
   border-radius: clamp(10px, 2vw, 14px);
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(6px);
-  box-shadow: 0 clamp(8px, 2vw, 12px) clamp(20px, 5vw, 30px) rgba(0, 0, 0, 0.5);
+  box-shadow: 0 clamp(8px, 2vw, 12px) clamp(20px, 5vw, 30px)
+    rgba(0, 0, 0, 0.5);
   color: white;
 }
 
@@ -300,7 +304,8 @@ button:hover {
 
 .dias-mes span.asistio {
   background: linear-gradient(135deg, #6f624d, #f9cc02);
-  box-shadow: 0 clamp(4px, 1.5vw, 6px) clamp(10px, 3vw, 14px) rgba(0, 0, 0, 0.4);
+  box-shadow: 0 clamp(4px, 1.5vw, 6px) clamp(10px, 3vw, 14px)
+    rgba(0, 0, 0, 0.4);
 }
 
 .mensaje {
@@ -324,7 +329,6 @@ button:hover {
   border: none;
   padding: clamp(8px, 2vw, 12px) clamp(14px, 3vw, 20px);
   border-radius: clamp(6px, 1.5vw, 8px);
-  font-size: clamp(0.85rem, 2vw, 1rem);
   cursor: pointer;
 }
 </style>

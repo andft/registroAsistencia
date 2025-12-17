@@ -1,6 +1,8 @@
 <template>
   <div class="fondo column justify-center items-center">
-    <div class="row justify-center items-center">
+    <div class="blur-overlay"></div>
+
+    <div class="contenido row justify-center items-center">
       <div>
         <div class="column justify-center items-center q-gutter-lg">
           <div><h3>Centro de Asistencia Estudiantil</h3></div>
@@ -242,16 +244,30 @@ onMounted(async () => {
 
 <style>
 body {
-  min-height: 100vh;
-  width: 100%;
-  background-image: url("../assets/Ambiente.jpg");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  min-height: 100vh !important;
+  width: 100% !important;
 }
 
 .fondo {
-  padding-top: 100px ;
+  position: relative;
+  min-height: 100vh !important;
+  width: 100% !important;
+}
+
+.blur-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.contenido {
+  position: relative;
+  z-index: 2;
+  width: 100%;
 }
 
 .container {
@@ -259,11 +275,11 @@ body {
   justify-content: center;
   max-width: 420px;
   width: 100%;
+  z-index: 99;
 }
 
 h3 {
   font-size: 1.9rem;
-  font-weight: 700;
   color: #ffffff;
   text-align: center;
   letter-spacing: 0.04em;
@@ -307,7 +323,6 @@ input:focus {
   margin-top: 10px;
   font-size: 0.95rem;
   color: #f1f1f1;
-  font-weight: 500;
   text-align: center;
 }
 
@@ -378,7 +393,6 @@ input:focus {
   color: #fff;
   border: none;
   cursor: pointer;
-  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   transition: all 0.3s ease;
@@ -403,7 +417,6 @@ input:focus {
   background: linear-gradient(135deg, #8b7d66, #6f634f);
   color: #ffffff;
   padding: 20px;
-  font-weight: 600;
   letter-spacing: 0.04em;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
