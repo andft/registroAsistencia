@@ -86,7 +86,7 @@
 
 <script setup>
 import { ref, reactive, computed, nextTick, onMounted } from "vue";
-import { UseFace } from "@/composables/useFace";
+import { useFace } from "@/composables/UseFace";
 import BotonIniciar from "../components/BotonIniciar.vue";
 
 function fechaactual() {

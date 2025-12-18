@@ -63,7 +63,7 @@
 <script setup>
 import { ref, reactive, nextTick } from "vue";
 import { getDaysInMonth } from "date-fns";
-import { useFace } from "@/composables/useFace";
+import { useFace } from "@/composables/UseFace";
 
 const documento = ref("");
 const estudianteSeleccionado = ref(null);
